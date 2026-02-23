@@ -1,0 +1,32 @@
+name: Daily Scraper Workflow
+
+on:
+  schedule:
+    - cron: '0 9 * * *' # This means 9:00 AM every day
+  workflow_dispatch: # This adds a "Run" button so you can test it manually
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install libraries
+        run: pip install -r requirements.txt
+
+      - name: Run the script
+        run: python scraper.py
+
+      - name: Save the data back to GitHub
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add log.csv
+          git commit -m "Updated log with new data" || exit 0
+          git push
